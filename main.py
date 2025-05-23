@@ -1,27 +1,9 @@
-import sys
-from pathlib import Path
-
-# Выводим текущие пути Python
-print("Текущие sys.path:", sys.path)
-
-# Жёстко добавляем абсолютный путь к news_parser
-project_path = Path(__file__).resolve().parent.parent  # Путь к корню проекта
-print("Путь к проекту:", project_path)
-sys.path.insert(0, str(project_path))  # Добавляем в начало
-
-# Проверяем, видит ли Python папку news_parser
-try:
-    from core.config import ConfigLoader
-    print("✅ Импорт работает!")
-except ImportError as e:
-    print("❌ Ошибка импорта:", e)
-    raise
-
 from core.config import ConfigLoader
 from core.lenta_parser import LentaParser
 from core.ria_parser import RiaParser
 from typing import Tuple
 import logging
+from pathlib import Path
 
 def run_parser(parser) -> Tuple[bool, Path]:
     """Запускает парсер и обрабатывает базовые ошибки."""
@@ -40,12 +22,12 @@ def main():
     )
 
     # Инициализация загрузчика конфигурации
-    config_loader = ConfigLoader()  # Создаём загрузчик конфигурации
+    config_loader = ConfigLoader()
 
-    # Инициализация парсеров с передачей config_loader
+    # Инициализация парсеров
     parsers = [
-        LentaParser(config_loader)#,  # Передаём загрузчик
-        #RiaParser(config_loader)    # Передаём загрузчик
+        LentaParser(config_loader),
+        # RiaParser(config_loader)  # Раскомментировать, когда будет готов
     ]
 
     # Запуск всех парсеров

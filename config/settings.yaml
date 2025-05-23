@@ -9,9 +9,9 @@ common:
   # -------------------------------------------
   system:
     # Пути хранения данных
-    raw_data_dir: "news_parser/data/raw"           # Директория для сырых JSON-данных
-    enriched_data_dir: "news_parser/data/enriched" # Для обработанных данных
-    logs_dir: "news_parser/logs"                   # Каталог логов (парсинг-ошибки)
+    raw_data_dir: "data/raw"           # Директория для сырых JSON-данных
+    enriched_data_dir: "data/enriched" # Для обработанных данных
+    logs_dir: "logs"                   # Каталог логов (парсинг-ошибки)
 
     # Настройки запросов
     request_timeout: 10                            # Таймаут HTTP-запросов (в секундах)
