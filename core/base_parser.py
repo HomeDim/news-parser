@@ -18,22 +18,16 @@ class BaseParser:
     - Логирование
     """
     
+
     def __init__(self, config_loader):
-        """Инициализация парсера.
-        
-        Args:
-            config_loader: Объект для загрузки конфигурации
-        """
         self.config = config_loader
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger(self.__class__.__name__) 
         
         if not hasattr(self, 'source_name'):
             raise NotImplementedError("source_name должен быть указан в дочернем классе")
             
-        # Загружаем конфигурацию
         self.source_config = self.config.get_source_config(self.source_name)
         
-        # Устанавливаем основные атрибуты
         self.timezone = pytz.timezone(self.source_config['system']['parser_timezone'])
         self.request_timeout = self.source_config['system']['request_timeout']
         self.user_agent = self.source_config['defaults']['user_agent']

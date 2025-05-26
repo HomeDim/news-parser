@@ -3,6 +3,9 @@ from pathlib import Path
 import logging
 from typing import Dict, Any
 
+# Получаем логгер для модуля config
+logger = logging.getLogger(__name__)
+
 class ConfigLoader:
     """Загрузчик и валидатор конфигурации парсеров.
     
@@ -20,6 +23,8 @@ class ConfigLoader:
         """
         self._config = self._load_config(config_path)
         self._validate_config()
+        # Этот логгер будет использовать настроенный basicConfig после его вызова в main.py
+        logger.info("ConfigLoader успешно инициализирован.")
 
     def _load_config(self, custom_path: str = None) -> Dict[str, Any]:
         """Загрузка YAML-конфига с обработкой ошибок.
@@ -42,18 +47,23 @@ class ConfigLoader:
                 config = yaml.safe_load(f)
                 
             if not config:
+                # Используем локальный логгер
+                logger.error("Конфиг пустой или содержит недопустимые значения")
                 raise ValueError("Конфиг пустой или содержит недопустимые значения")
                 
             return config
             
         except FileNotFoundError:
-            logging.critical(f"Конфиг не найден по пути: {config_path}")
+            # Используем локальный логгер, добавляем exc_info=True для вывода стектрейса
+            logger.critical(f"Конфиг не найден по пути: {config_path}", exc_info=True)
             raise
         except yaml.YAMLError as e:
-            logging.critical(f"Ошибка парсинга YAML: {str(e)}")
+            # Используем локальный логгер, добавляем exc_info=True
+            logger.critical(f"Ошибка парсинга YAML: {str(e)}", exc_info=True)
             raise
         except Exception as e:
-            logging.critical(f"Неизвестная ошибка загрузки конфига: {str(e)}")
+            # Используем локальный логгер, добавляем exc_info=True
+            logger.critical(f"Неизвестная ошибка загрузки конфига: {str(e)}", exc_info=True)
             raise
 
     def _validate_config(self) -> None:
@@ -64,11 +74,15 @@ class ConfigLoader:
         """
         required_common = ['system', 'defaults']
         for section in required_common:
-            if section not in self._config['common']:
+            if section not in self._config.get('common', {}): # Добавлено .get({}, {}) для безопасности
+                logger.error(f"Отсутствует обязательная секция 'common.{section}' в конфиге.")
                 raise ValueError(f"Отсутствует обязательная секция 'common.{section}'")
         
         if not isinstance(self._config.get('sources'), dict):
+            logger.error("Секция 'sources' должна быть словарем или отсутствовать.")
             raise ValueError("Секция 'sources' должна быть словарем")
+        
+        logger.info("Конфигурация успешно валидирована.")
 
     @property
     def system_settings(self) -> Dict[str, Any]:
@@ -98,6 +112,7 @@ class ConfigLoader:
             KeyError: Если источник не найден
         """
         if source_name not in self.sources:
+            logger.error(f"Источник {source_name} не найден в секции 'sources' конфига.")
             raise KeyError(f"Источник {source_name} не найден в конфиге")
             
         source_cfg = self.sources[source_name]
